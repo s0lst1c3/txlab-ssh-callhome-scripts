@@ -24,7 +24,6 @@ Execute init-client on the client device as shown in the following command, wher
 
 - PORT is the port number you selected in Step 1
 - SERVER is the FQDN or IP of your C2 server
-- USERNAME is a valid user on the client device
 
 ```
   ./init-client --server SERVER --port PORT
