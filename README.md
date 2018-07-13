@@ -12,18 +12,22 @@ Credit for the C2 architecture itself should go exclusively to Stanislav Sinyagi
 
 __Step 1__ - Server Setup
 
-Execute init_server on the C2 server as shown in the following command:
+Execute init-server on the C2 server as shown in the following command:
 
 ```
-  ./init_server 
+  ./init-server 
 ```
 
 __Step 2__ - Client Setup
 
-Execute init_client on the client device as shown in the following command, replacing PORT with a port of your choosing:
+Execute init-client on the client device as shown in the following command, where:
+
+- PORT is the port number you selected in Step 1
+- SERVER is the FQDN or IP of your C2 server
+- USERNAME is a valid user on the client device
 
 ```
-  ./initialize_client
+  ./init-client --server SERVER --port PORT
 ```
 
 Repeat this step for each client device that you wish to be able to connect to.
