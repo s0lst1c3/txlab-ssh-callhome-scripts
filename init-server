@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+import shutil
+import os
+
+sshd_config = '/etc/ssh/sshd_config'
+tmp_file = '/tmp/silentbridge-setup.tmp'
+
+shutil.copyfile(sshd_config, sshd_config+'.silentbridge.bak')
+
+with open(sshd_config) as input_handle:
+	with open(tmp_file, 'w') as output_handle:
+		for line in input_handle:
+			line = line.strip()
+			if 'ClientAliveInterval' in line:
+				line = 'ClientAliveInterval 5'
+			elif 'ClientAliveCountMax' in line:
+				line = 'ClientAliveCountMax 3'
+			elif 'GatewayPorts' in line:
+				line = 'GatewayPorts yes'
+	
+			output_handle.write(line+'\n')
+
+shutil.copyfile(tmp_file, sshd_config)
+
+try:
+	os.remove(tmp_file)
+except OSError as e:
+	print 'Error:', e.filename, '-', e.strerror
+
+os.system('useradd -r -m -k /dev/null comehome')
+os.system('mkdir /home/comehome/.ssh')
+os.system('chmod 700 /home/comehome/.ssh/')
+os.system('touch /home/comehome/.ssh/authorized_keys')
+os.system('chmod 600 /home/comehome/.ssh/authorized_keys')
+os.system('chown -R comehome:comehome /home/comehome/.ssh/')
+os.system('passwd comehome')
+
+os.system('systemctl enable ssh')
+os.system('systemctl restart ssh')

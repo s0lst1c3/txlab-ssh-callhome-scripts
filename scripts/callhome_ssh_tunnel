@@ -1,0 +1,48 @@
+#! /bin/sh
+#
+### BEGIN INIT INFO
+# Provides:          k-open_ssh_tunnel
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      
+# Short-Description: SSH tunnel to support.mydomain.com
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON="/bin/sh /root/ssh_tunnel.sh"
+DESC="SSH tunnel to callhome.mydomain.net"
+VERBOSE=yes
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+. /lib/lsb/init-functions
+
+OPTIONS=""
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+        start-stop-daemon --start --background \
+                --name ssh_tunnel.sh --exec $DAEMON \
+                || return 1
+}
+
+case "$1" in
+  start)
+        [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+        do_start
+        case "$?" in
+                0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+                2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+        esac
+        ;;
+  stop)
+        echo not supported
+        ;;
+esac
+
+exit 0

